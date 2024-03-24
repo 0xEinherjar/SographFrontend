@@ -1,0 +1,23 @@
+{
+  "address": "0x6e0F40902dED85854b4Bc155303B40838B71034a",
+  "abi": [
+    "function addressByProfileId(uint256) view returns (address)",
+    "function createPost(string)",
+    "function createProfile(string)",
+    "function follow(address)",
+    "function getPost(uint256[]) view returns (tuple(bool,string,string,uint256,string,address,uint256)[])",
+    "function getPostToCaller(uint256[]) view returns (tuple(bool,string,string,uint256,string,address,uint256,bool)[])",
+    "function getProfile(address) view returns (uint256, address, string, string, bool, uint256, uint256, uint256[])",
+    "function getProfileToCaller(address) view returns (uint256, address, string, string, bool, uint256, uint256, bool, bool, uint256[])",
+    "function like(uint256)",
+    "function ownerOfHandle(string) view returns (address)",
+    "function reactivatePost(uint256[])",
+    "function reactivateProfile(uint256)",
+    "function redeemPost(uint256)",
+    "function redeemProfile()",
+    "function subscription(uint256)",
+    "function unfollow(address)",
+    "function updateHandle(string)",
+    "function updateProfile(string)"
+  ]
+}
