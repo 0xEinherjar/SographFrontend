@@ -339,7 +339,7 @@ async function create() {
 }
 .connect__button1 {
   height: 48px;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 70%;
   margin-block: auto;
   font-size: 1.5rem;
@@ -359,7 +359,7 @@ async function create() {
 }
 .connect__button {
   height: 48px;
-  border-radius: 8px;
+  border-radius: 12px;
   width: 70%;
   margin-block: auto;
   font-size: 1.5rem;
