@@ -280,7 +280,7 @@ body {
   font-weight: 500;
 }
 .users {
-  padding: 76px 80px;
+  padding-block: 76px;
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(104px, max-content));
   gap: 80px;

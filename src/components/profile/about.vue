@@ -126,7 +126,6 @@
         gap: 42px;
         max-width: 660px;
         max-width: 820px;
-        padding-inline: 80px;
     }
     .about__section {
         display: grid;
