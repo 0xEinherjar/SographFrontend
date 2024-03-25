@@ -225,10 +225,10 @@ onBeforeMount(async () => {
 .profile__button {
   font-weight: 500;
   color: #f4f4f4;
-  border-radius: 8px;
+  border-radius: 12px;
   padding-inline: 24px;
   font-size: 15px;
-  height: 40px;
+  height: 48px;
   background-color: #4e4f51;
 }
 </style>
