@@ -1,23 +1,23 @@
 <script setup>
-  import { computed } from "vue";
-  import { useUtils } from "../../composables/utils.js";
-  const { profile } = defineProps(["profile"]);
-  const { truncateAddress } = useUtils()
-  // const username = computed(() => {
-  //   return profile?.handle ? profile?.handle : truncateAddress(profile?.owner)
-  // })
-  const biography = computed(()=> {
-    return String(profile.biography).split("\n");
-  });
+import { computed } from "vue";
+import { useUtils } from "../../composables/utils.js";
+const { profile } = defineProps(["profile"]);
+const { truncateAddress } = useUtils();
+// const username = computed(() => {
+//   return profile?.handle ? profile?.handle : truncateAddress(profile?.owner)
+// })
+const biography = computed(() => {
+  return String(profile.biography).split("\n");
+});
 
-  const date = computed(()=> {
-    return new Intl.DateTimeFormat("en-US", {
-      year: "numeric",
-      month: "short"
-    }).format(new Date(profile.createdAt))
-    // return new Date(profile.createdAt)
-  })
+const date = computed(() => {
+  return new Intl.DateTimeFormat("en-US", {
+    year: "numeric",
+    month: "short",
+  }).format(new Date(profile.createdAt));
+});
 </script>
+<!-- prettier-ignore -->
 <template>
   <div class="about">
     <section v-if="profile?.biography" class="about__section">
@@ -120,51 +120,50 @@
   </div>
 </template>
 <style>
-    .about {
-        padding-block: 42px;
-        display: grid;
-        gap: 42px;
-        max-width: 660px;
-        max-width: 820px;
-    }
-    .about__section {
-        display: grid;
-        gap: 24px;
-    }
-    .about__title {
-        font-weight: 500;
-    }
-    .about__paragraph {
-        color: var(--text-color-secondary);
-    }
-    .about__list {
-        display: flex;
-        align-items: center;
-        gap: 40px;
-    }
-    .about__list-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 500;
-    }
-    .about__list-text {
-        color: var(--text-color-secondary);
-        opacity: 0.4;
-        margin-left: 2px;
-    }
-    .about__details {
-        padding: 24px 32px;
-        background-color: var(--bg-color-secondary);
-        display: flex;
-        align-items: center;
-        gap: 32px;
-        border-radius: 12px;
-    }
-    .about__details-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        font-weight: 500;
-    }
+.about {
+  padding-block: 42px;
+  display: grid;
+  gap: 42px;
+}
+.about__section {
+  display: grid;
+  gap: 24px;
+}
+.about__title {
+  font-weight: 500;
+}
+.about__paragraph {
+  color: var(--text-color-secondary);
+  width: min(780px, 100%);
+}
+.about__list {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+.about__list-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
+.about__list-text {
+  color: var(--text-color-secondary);
+  opacity: 0.4;
+  margin-left: 2px;
+}
+.about__details {
+  padding: 24px 32px;
+  background-color: var(--bg-color-secondary);
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  border-radius: 12px;
+}
+.about__details-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-weight: 500;
+}
 </style>

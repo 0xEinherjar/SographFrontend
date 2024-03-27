@@ -507,7 +507,8 @@ function scrollMeTo(refName) {
   gap: 40px;
 }
 .setting__section {
-  width: min(520px, 100%);
+  width: 100%;
+  max-width: 500px;
   margin-inline: auto;
   display: grid;
   gap: 32px;
