@@ -22,9 +22,10 @@ const pathProfile = computed(() => {
 });
 
 function logout() {
+  const path = pathProfile.value;
   resetAccount();
   removeUser();
-  router.push({ path: `${pathProfile}` });
+  router.push({ path: `${path}` });
 }
 </script>
 <!-- prettier-ignore -->

@@ -1,20 +1,21 @@
 <script setup>
-  import { onBeforeMount, ref } from "vue";
-  import User from "../user.vue";
-  import UserPlaceholder from "../user-placeholder.vue";
-  import Blockchain from "../../infra/blockchain.js";
-  const { id, isConnected } = defineProps(["id", "isConnected"]);
-  const followers = ref([]);
-  const isLoading = ref(true);
-  onBeforeMount(async () => {
-    const blockchain = new Blockchain();
-    const { success, data } = await blockchain.getFollwers(id);
-    if (success) {
-      followers.value = data;
-    }
-    isLoading.value = false;
-  })
+import { onBeforeMount, ref } from "vue";
+import User from "../user.vue";
+import UserPlaceholder from "../user-placeholder.vue";
+import Blockchain from "../../infra/blockchain.js";
+const { id, isConnected } = defineProps(["id", "isConnected"]);
+const followers = ref([]);
+const isLoading = ref(true);
+onBeforeMount(async () => {
+  const blockchain = new Blockchain();
+  const { success, data } = await blockchain.getFollwers(id);
+  if (success) {
+    followers.value = data;
+  }
+  isLoading.value = false;
+});
 </script>
+<!-- prettier-ignore -->
 <template>
   <template v-if="!isLoading">
     <div v-if="followers.length > 0" class="users">

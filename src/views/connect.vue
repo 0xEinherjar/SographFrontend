@@ -82,6 +82,7 @@ async function create() {
       description: form.value.description,
       createdAt: new Date().toISOString(),
     });
+    if (!Boolean(metadata)) return;
     const blockchain = new Blockchain();
     const result = await blockchain.createProfile(metadata);
     if (result.success) {
