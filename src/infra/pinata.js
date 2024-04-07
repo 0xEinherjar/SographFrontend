@@ -14,7 +14,7 @@ async function uploadFile(file) {
     );
     const result = await response.json();
     if (!result.IpfsHash) return { success: false };
-    return { success: false, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
+    return { success: true, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
   } catch (error) {
     return { success: false };
   }
@@ -60,7 +60,7 @@ export async function pinProfileToIPFS(params) {
     );
     const result = await response.json();
     if (!result.IpfsHash) return { success: false };
-    return { success: false, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
+    return { success: true, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
   } catch (error) {
     return { success: false };
   }
@@ -93,7 +93,7 @@ export async function pinPostToIPFS(params) {
     );
     const result = await response.json();
     if (!result.IpfsHash) return { success: false };
-    return { success: false, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
+    return { success: true, data: `https://ipfs.io/ipfs/${result.IpfsHash}` };
   } catch (error) {
     return { success: false };
   }
