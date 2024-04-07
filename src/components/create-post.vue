@@ -65,8 +65,12 @@ async function create() {
       text: text,
       createdAt: new Date().toISOString(),
     });
+    if (metadata.success == false) {
+      isLoading.value = false;
+      return;
+    }
     const blockchain = new Blockchain();
-    await blockchain.createPost(metadata);
+    await blockchain.createPost(metadata.data);
     form.value.attachment = null;
     form.value.text = "";
     attachmentURL.value = "";

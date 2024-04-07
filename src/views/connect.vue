@@ -82,12 +82,12 @@ async function create() {
       description: form.value.description,
       createdAt: new Date().toISOString(),
     });
-    if (!Boolean(metadata)) {
+    if (metadata.success == false) {
       isLoading.value = false;
       return;
     }
     const blockchain = new Blockchain();
-    const result = await blockchain.createProfile(metadata);
+    const result = await blockchain.createProfile(metadata.data);
     if (result.success) {
       accountStore.setHasAccount();
       const profile = await blockchain.getProfile(wallet.value);

@@ -92,8 +92,12 @@ async function update() {
       instagram: form.value.links.instagram,
     },
   });
+  if (metadata.success == false) {
+    isLoading.value = false;
+    return;
+  }
   const blockchain = new Blockchain();
-  const result = await blockchain.update(metadata);
+  const result = await blockchain.update(metadata.data);
   if (result.success) {
     const resultgetProfile = await blockchain.getProfile(user.value.owner);
     if (resultgetProfile.success) {
