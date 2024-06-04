@@ -1,4 +1,4 @@
-import { ethers, Contract, isError } from "ethers";
+import { ethers, Contract, isError, Block } from "ethers";
 import { storeToRefs } from "pinia";
 import { useUtils } from "../composables/utils.js";
 import { usePrepare } from "../composables/prepare.js";
@@ -6,10 +6,13 @@ import { useAccountStore } from "../store/account.js";
 import { useUserStore } from "../store/user.js";
 import sographAbi from "../json/Sograph.json";
 import profileAbi from "../json/ProfileNFT.json";
+import tokenAbi from "../json/Token.json";
+const { formatToNumber } = useUtils();
 
 export default class Blockchain {
   static profileContract;
   static sographContract;
+  static tokenContract;
   static provider;
   static rpc = "https://data-seed-prebsc-1-s1.binance.org:8545/";
 
@@ -27,6 +30,11 @@ export default class Blockchain {
     Blockchain.profileContract = new Contract(
       profileAbi.address,
       profileAbi.abi,
+      Blockchain.provider
+    );
+    Blockchain.tokenContract = new Contract(
+      tokenAbi.address,
+      tokenAbi.abi,
       Blockchain.provider
     );
   }
@@ -79,11 +87,43 @@ export default class Blockchain {
     }
   }
 
+  async share(id) {
+    try {
+      const signer = await Blockchain.provider.getSigner();
+      const transaction = await Blockchain.sographContract
+        .connect(signer)
+        .share(id);
+      await transaction.wait();
+      return { success: true };
+    } catch (error) {
+      if (isError(error, "CALL_EXCEPTION")) {
+        return { success: false, message: error.reason };
+      }
+      return { success: false, message: "" };
+    }
+  }
+
+  async unshare(id) {
+    try {
+      const signer = await Blockchain.provider.getSigner();
+      const transaction = await Blockchain.sographContract
+        .connect(signer)
+        .unshare(id);
+      await transaction.wait();
+      return { success: true };
+    } catch (error) {
+      if (isError(error, "CALL_EXCEPTION")) {
+        return { success: false, message: error.reason };
+      }
+      return { success: false, message: "" };
+    }
+  }
+
   async getProfile(profile) {
     const accountStore = useAccountStore();
     const { account } = storeToRefs(accountStore);
     const prepare = usePrepare();
-    const { isAddress } = useUtils();
+    const { isAddress, formatToNumber } = useUtils();
     try {
       if (!isAddress(profile)) {
         const address = await Blockchain.sographContract.ownerOfHandle(profile);
@@ -95,16 +135,32 @@ export default class Blockchain {
         const signer = await Blockchain.provider.getSigner();
         const transaction = await Blockchain.sographContract
           .connect(signer)
-          .getProfileToCaller(profile);
-        const data = await prepare.profileToCaller(transaction);
+          .getUserByAddressToCaller(profile);
+        const transactionProfile = await Blockchain.profileContract
+          .connect(signer)
+          .getProfileByIdToCaller(
+            formatToNumber(transaction[0]),
+            formatToNumber(transaction[1])
+          );
+        const data = await prepare.profileToCaller(transactionProfile);
+        data.id = formatToNumber(transaction[1]);
+        data.role = formatToNumber(transaction[2]);
+        data.owner = profile;
         if (!data) return { success: false, message: "" };
         return { success: true, data };
       } else {
-        const transaction = await Blockchain.sographContract.getProfile(
+        const transaction = await Blockchain.sographContract.getUserByAddress(
           profile
         );
-        const data = await prepare.profile(transaction);
+        const transactionProfile =
+          await Blockchain.profileContract.getProfileById(
+            formatToNumber(transaction[0])
+          );
+        const data = await prepare.profile(transactionProfile);
         if (!data) return { success: false, message: "" };
+        data.id = formatToNumber(transaction[0]);
+        data.role = formatToNumber(transaction[1]);
+        data.owner = profile;
         return { success: true, data };
       }
     } catch (error) {
@@ -118,7 +174,7 @@ export default class Blockchain {
     }
   }
 
-  async getPost(_id) {
+  async getPost(user, cursor, size) {
     const accountStore = useAccountStore();
     const { account } = storeToRefs(accountStore);
     const prepare = usePrepare();
@@ -126,27 +182,39 @@ export default class Blockchain {
       const signer = await Blockchain.provider.getSigner();
       const transaction = await Blockchain.sographContract
         .connect(signer)
-        .getPostToCaller(_id);
-      const data = await prepare.postToCaller(transaction);
-      return data;
+        .getPublicationsByUserToCaller(user, cursor, size);
+      if (transaction[0].length == 0) return { data: [], cursor: 0 };
+      const data = await prepare.postToCaller(transaction[0]);
+      return { data: data, cursor: formatToNumber(transaction[1]) };
     } else {
-      const transaction = await Blockchain.sographContract.getPost(_id);
-      const data = await prepare.post(transaction);
-      return data;
+      const transaction =
+        await Blockchain.sographContract.getPublicationsByUser(
+          user,
+          cursor,
+          size
+        );
+      if (transaction[0].length == 0) return { data: [], cursor: 0 };
+      const data = await prepare.post(transaction[0]);
+      return { data: data, cursor: formatToNumber(transaction[1]) };
     }
   }
 
-  async getFollwers(id) {
+  async getFollowers(id, cursor, size) {
     try {
       const accountStore = useAccountStore();
       const userStore = useUserStore();
       const { account } = storeToRefs(accountStore);
       const { user } = storeToRefs(userStore);
-      const transaction = await Blockchain.profileContract.getFollowers(id);
+      const transaction = await Blockchain.profileContract.getFollowers(
+        id,
+        cursor,
+        size
+      );
+      if (!transaction[0].length) return { success: true, data: [], cursor: 0 };
       const profiles = [];
       if (account.value.isConnected && account.value.hasAccount) {
-        for (const follwerId of transaction) {
-          let _id = String(follwerId).replace(/n/i, "");
+        for (const follwerId of transaction[0]) {
+          let _id = formatToNumber(follwerId);
           const profile =
             await Blockchain.profileContract.getProfileByIdToCaller(
               user.value.id,
@@ -191,7 +259,11 @@ export default class Blockchain {
         }
       }
 
-      return { success: true, data: profiles };
+      return {
+        success: true,
+        data: profiles,
+        cursor: formatToNumber(transaction[1]),
+      };
     } catch (error) {
       if (isError(error, "CALL_EXCEPTION")) {
         return { success: false, message: error.reason };
@@ -200,17 +272,22 @@ export default class Blockchain {
     }
   }
 
-  async getFollowings(id) {
+  async getFollowings(id, cursor, size) {
     try {
       const accountStore = useAccountStore();
       const userStore = useUserStore();
       const { account } = storeToRefs(accountStore);
       const { user } = storeToRefs(userStore);
-      const transaction = await Blockchain.profileContract.getFollowings(id);
+      const transaction = await Blockchain.profileContract.getFollowings(
+        id,
+        cursor,
+        size
+      );
+      if (!transaction[0].length) return { success: true, data: [], cursor: 0 };
       const profiles = [];
       if (account.value.isConnected && account.value.hasAccount) {
-        for (const follwerId of transaction) {
-          let _id = String(follwerId).replace(/n/i, "");
+        for (const follwerId of transaction[0]) {
+          let _id = formatToNumber(follwerId);
           const profile =
             await Blockchain.profileContract.getProfileByIdToCaller(
               user.value.id,
@@ -258,7 +335,11 @@ export default class Blockchain {
           });
         }
       }
-      return { success: true, data: profiles };
+      return {
+        success: true,
+        data: profiles,
+        cursor: formatToNumber(transaction[1]),
+      };
     } catch (error) {
       if (isError(error, "CALL_EXCEPTION")) {
         return { success: false, message: error.reason };
@@ -411,15 +492,49 @@ export default class Blockchain {
     }
   }
 
-  async subscription(period = 1) {
+  async approveToken(value) {
+    try {
+      const accountStore = useAccountStore();
+      const { account } = storeToRefs(accountStore);
+      const transactionAllowance = await Blockchain.tokenContract.allowance(
+        profileAbi.address,
+        account.value.wallet
+      );
+      if (formatToNumber(transactionAllowance) > value) {
+        const decimals = await Blockchain.tokenContract.decimals();
+        const signer = await Blockchain.provider.getSigner();
+        const transaction = await Blockchain.tokenContract
+          .connect(signer)
+          .approve(profileAbi.address, value * 10 ** formatToNumber(decimals));
+        await transaction.wait();
+      }
+      return { success: true };
+    } catch (error) {
+      if (isError(error, "CALL_EXCEPTION")) {
+        return { success: false, message: error.reason };
+      }
+      return { success: false, message: "" };
+    }
+  }
+
+  async getPriceSubscription() {
+    const transaction = await Blockchain.profileContract.fees();
+    const transactionToken = await Blockchain.tokenContract.decimals();
+    return (
+      formatToNumber(transaction[2]) / 10 ** formatToNumber(transactionToken)
+    );
+  }
+
+  async subscription(id, period) {
     try {
       const signer = await Blockchain.provider.getSigner();
-      const transaction = await Blockchain.sographContract
+      const transaction = await Blockchain.profileContract
         .connect(signer)
-        .subscription(period);
+        .subscription(id, period);
       await transaction.wait();
       return { success: true };
     } catch (error) {
+      console.log(error);
       if (isError(error, "CALL_EXCEPTION")) {
         return { success: false, message: error.reason };
       }

@@ -7,7 +7,7 @@ import { storeToRefs } from "pinia";
 import { useAccountStore } from "../store/account.js";
 import { useUserStore } from "../store/user.js";
 import { useRouter } from "vue-router";
-import { computed, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 const router = useRouter();
 const accountStore = useAccountStore();
@@ -25,7 +25,7 @@ function logout() {
   const path = pathProfile.value;
   resetAccount();
   removeUser();
-  router.push({ path: `${path}` });
+  router.push({ path: `/user/${path}` });
 }
 </script>
 <!-- prettier-ignore -->
@@ -75,8 +75,9 @@ function logout() {
     </div>
     <nav class="header__nav u-flex-line">
       <template v-if="account.isConnected">
-        <router-link class="header__nav-item" to="/feed">Feed</router-link>
-        <router-link class="header__nav-item" :to="`/${pathProfile}`"
+        <div class="header__nav-item c-soon">Explorer</div>
+        <router-link class="header__nav-item" to="/user/feed">Feed</router-link>
+        <router-link class="header__nav-item" :to="`/user/${pathProfile}`"
           >Profile</router-link
         >
         <div class="header__nav-item"><card-payment /></div>
@@ -87,7 +88,7 @@ function logout() {
     <router-link
       v-if="account.isConnected == false"
       class="header__button u-flex-line u-flex-line-center"
-      to="/connect"
+      to="/user/connect"
       >Connect</router-link
     >
     <div v-else class="header__dropdown u-flex-line">
@@ -117,7 +118,7 @@ function logout() {
         </div>
         <ul class="header__submenu-list">
           <li class="header__submenu-item">
-            <router-link to="/settings">Setting</router-link>
+            <router-link to="/user/settings">Setting</router-link>
           </li>
           <li class="header__submenu-item">
             <button @click="logout" type="button">Logout</button>
@@ -190,5 +191,11 @@ function logout() {
 }
 .header__dropdown:hover .header__submenu {
   display: block;
+}
+.header__right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4rem;
 }
 </style>

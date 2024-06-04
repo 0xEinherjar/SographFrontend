@@ -1,6 +1,8 @@
+import { useUtils } from "../composables/utils.js";
+const { formatToNumber } = useUtils();
 export const usePrepare = () => {
   async function profileToCaller(data) {
-    const metadataURL = data[2];
+    const metadataURL = data[0];
     if (!String(metadataURL).startsWith("https://ipfs.io/ipfs/")) return null;
     const metadata = await fetch(metadataURL).then((response) =>
       response.json()
@@ -9,23 +11,20 @@ export const usePrepare = () => {
     if (avatar != null && !avatar.startsWith("https://ipfs.io/ipfs/")) {
       avatar = null;
     }
-    const publications = [];
-    for (const item of data[9]) {
-      publications.push(Number(String(item).replace(/n/i, "")));
-    }
+    // const publications = [];
+    // for (const item of data[9]) {
+    //   publications.push(Number(String(item).replace(/n/i, "")));
+    // }
     return {
       avatar: avatar,
       name: metadata.name,
       description: metadata.description,
-      id: String(data[0]).replace(/n/i, ""),
-      owner: data[1],
-      handle: data[3],
+      handle: data[1],
       hasSubscription: data[4],
-      following: Number(String(data[5]).replace(/n/i, "")),
-      followers: Number(String(data[6]).replace(/n/i, "")),
-      isFollowing: data[7],
-      isFollower: data[8],
-      publicationsId: publications.reverse(),
+      following: Number(String(data[2]).replace(/n/i, "")),
+      followers: Number(String(data[3]).replace(/n/i, "")),
+      isFollowing: data[5],
+      isFollower: data[6],
       biography: metadata.biography,
       location: metadata.location,
       createdAt: metadata.created_at,
@@ -39,7 +38,7 @@ export const usePrepare = () => {
   }
 
   async function profile(data) {
-    const metadataURL = data[2];
+    const metadataURL = data[0];
     if (!metadataURL.startsWith("https://ipfs.io/ipfs/")) return null;
     const metadata = await fetch(metadataURL).then((response) =>
       response.json()
@@ -48,21 +47,14 @@ export const usePrepare = () => {
     if (avatar != null && !avatar.startsWith("https://ipfs.io/ipfs/")) {
       avatar = null;
     }
-    const publications = [];
-    for (const item of data[7]) {
-      publications.push(Number(String(item).replace(/n/i, "")));
-    }
     return {
       avatar: avatar,
       name: metadata.name,
       description: metadata.description,
-      id: String(data[0]).replace(/n/i, ""),
-      owner: data[1],
-      handle: data[3],
+      handle: data[1],
       hasSubscription: data[4],
-      following: Number(String(data[5]).replace(/n/i, "")),
-      followers: Number(String(data[6]).replace(/n/i, "")),
-      publicationsId: publications.reverse(),
+      following: Number(String(data[2]).replace(/n/i, "")),
+      followers: Number(String(data[3]).replace(/n/i, "")),
       biography: metadata.biography,
       location: metadata.location,
       createdAt: metadata.created_at,
@@ -78,48 +70,57 @@ export const usePrepare = () => {
   async function postToCaller(data) {
     const postInfo = [];
     for (const list of data) {
-      if (!list[1].startsWith("https://ipfs.io/ipfs/")) continue;
-      if (!list[4].startsWith("https://ipfs.io/ipfs/")) continue;
-      let author = await fetch(list[1]).then((response) => response.json());
-      let metadata = await fetch(list[4]).then((response) => response.json());
+      if (list[6] == "0x0000000000000000000000000000000000000000") continue;
+      if (!list[3].startsWith("https://ipfs.io/ipfs/")) continue;
+      if (!list[5].startsWith("https://ipfs.io/ipfs/")) continue;
+      let author = await fetch(list[3]).then((response) => response.json());
+      let metadata = await fetch(list[5]).then((response) => response.json());
       postInfo.push({
-        authorHasSubscription: list[0],
         authorName: author.name,
         authorAvatar: author.avatar,
-        authorHandle: list[2],
-        id: String(list[3]).replace(/n/i, ""),
+        id: formatToNumber(list[0]),
+        hasShared: list[1],
+        authorHasSubscription: list[2],
+        authorHandle: list[4],
+        owner: list[6],
+        totalLike: formatToNumber(list[7]),
+        totalShared: formatToNumber(list[8]),
+        hasLiked: list[9],
         attachment: metadata.attachment,
         text: metadata.text,
         createdAt: metadata.created_at,
-        owner: list[5],
-        totalLike: String(list[6]).replace(/n/i, ""),
-        hasLiked: list[7],
       });
     }
-    return postInfo;
+    return postInfo.reverse();
   }
 
   async function post(data) {
     const postInfo = [];
     for (const list of data) {
-      if (!list[1].startsWith("https://ipfs.io/ipfs/")) continue;
-      if (!list[4].startsWith("https://ipfs.io/ipfs/")) continue;
-      let author = await fetch(list[1]).then((response) => response.json());
-      let metadata = await fetch(list[4]).then((response) => response.json());
+      if (list[6] == "0x0000000000000000000000000000000000000000") continue;
+      if (!list[3].startsWith("https://ipfs.io/ipfs/")) continue;
+      if (!list[5].startsWith("https://ipfs.io/ipfs/")) continue;
+      let author = await fetch(list[3]).then((response) => response.json());
+      let metadata = await fetch(list[5]).then((response) => response.json());
       postInfo.push({
-        authorHasSubscription: list[0],
         authorName: author.name,
         authorAvatar: author.avatar,
-        authorHandle: list[2],
-        id: String(list[3]).replace(/n/i, ""),
+        id: formatToNumber(list[0]),
+        hasShared: list[1],
+        authorHasSubscription: list[2],
+        authorHandle: list[4],
+        owner: list[6],
+        totalLike: formatToNumber(list[7]),
+        totalShared: formatToNumber(list[8]),
         attachment: metadata.attachment,
         text: metadata.text,
         createdAt: metadata.created_at,
-        owner: list[5],
-        totalLike: String(list[6]).replace(/n/i, ""),
       });
     }
-    return postInfo;
+    return postInfo.reverse();
+    // return postInfo.sort((a, b) => {
+    //   return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+    // });
   }
 
   return { profile, profileToCaller, post, postToCaller };

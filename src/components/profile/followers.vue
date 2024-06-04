@@ -8,7 +8,7 @@ const followers = ref([]);
 const isLoading = ref(true);
 onBeforeMount(async () => {
   const blockchain = new Blockchain();
-  const { success, data } = await blockchain.getFollwers(id);
+  const { success, data, cursor } = await blockchain.getFollowers(id, 0, 20);
   if (success) {
     followers.value = data;
   }

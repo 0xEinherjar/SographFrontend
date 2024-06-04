@@ -1,30 +1,47 @@
 <script setup>
-  import { useUtils } from '../../composables/utils.js';
-  import Blockchain from "../../infra/blockchain.js";
-  import { useAccountStore } from "../../store/account.js"
-  import { storeToRefs } from "pinia";
+import { useUtils } from "../../composables/utils.js";
+import Blockchain from "../../infra/blockchain.js";
+import { useAccountStore } from "../../store/account.js";
+import { storeToRefs } from "pinia";
 
-  const accountStore = useAccountStore();
-  const { account } = storeToRefs(accountStore);
-  const { isAddress, truncateAddress } = useUtils()
-  const { owner, name, username, description, avatar, role, isMyProfile, isFollowing } = defineProps(["owner", "name", "username", "description", "avatar", "role", "isMyProfile", "isFollowing"])
-  
-  async function handleFollow(address) {
-    const blockchain = new Blockchain();
-    const result = await blockchain.follow(address);
-    if (result.success) {
-      
-    }
-  }
-  
-  async function handleUnfollow(address) {
-    const blockchain = new Blockchain();
-    const result = await blockchain.unfollow(address);
-    if (result.success) {
+const accountStore = useAccountStore();
+const { account } = storeToRefs(accountStore);
+const { isAddress, truncateAddress } = useUtils();
+const {
+  owner,
+  name,
+  username,
+  description,
+  avatar,
+  role,
+  isMyProfile,
+  isFollowing,
+} = defineProps([
+  "owner",
+  "name",
+  "username",
+  "description",
+  "avatar",
+  "role",
+  "isMyProfile",
+  "isFollowing",
+]);
 
-    }
+async function handleFollow(address) {
+  const blockchain = new Blockchain();
+  const result = await blockchain.follow(address);
+  if (result.success) {
   }
+}
+
+async function handleUnfollow(address) {
+  const blockchain = new Blockchain();
+  const result = await blockchain.unfollow(address);
+  if (result.success) {
+  }
+}
 </script>
+<!-- prettier-ignore -->
 <template>
   <section class="profile__header u-flex-line-between">
     <div class="profile__content u-flex-line">
@@ -54,54 +71,53 @@
 </template>
 
 <style>
-  .profile {
-    padding-inline: 80px;
-    
-  }
-  .profile__header {
-    padding-block: 40px 66px;
-  }
-  .profile__content {
-    gap: 40px;
-  }
-  .profile__avatar {
-    height: 150px;
-    width: 150px;
-    object-fit: cover;
-    border-radius: 24px;
-  }
-  .profile__details {
-    display: grid;
-    gap: 14px;
-    max-width: 552px;
-  }
-  .profile__line {
-    gap: 9px;
-  }
-  .profile__badge {
-    margin-bottom: 3px;
-  }
-  .profile__name {
-    font-size: 3.2rem;
-    font-weight: 600;
-    line-height: 3.2rem;
-  }
-  .profile__username {
-    font-size: 1.4rem;
-    line-height: 1.4rem;
-    font-weight: 500;
-    color: var(--text-color-secondary);
-  }
-  .profile__description {
-    line-height: 150%;
-  }
-  .profile__button {
-    font-weight: 600;
-    color: #F4F4F4;
-    border-radius: 8px;
-    padding-inline: 24px;
-    font-size: 15px;
-    height: 40px;
-    background-color: #4E4F51;
-  }
+.profile {
+  padding-inline: 80px;
+}
+.profile__header {
+  padding-block: 40px 66px;
+}
+.profile__content {
+  gap: 40px;
+}
+.profile__avatar {
+  height: 150px;
+  width: 150px;
+  object-fit: cover;
+  border-radius: 24px;
+}
+.profile__details {
+  display: grid;
+  gap: 14px;
+  max-width: 552px;
+}
+.profile__line {
+  gap: 9px;
+}
+.profile__badge {
+  margin-bottom: 3px;
+}
+.profile__name {
+  font-size: 3.2rem;
+  font-weight: 600;
+  line-height: 3.2rem;
+}
+.profile__username {
+  font-size: 1.4rem;
+  line-height: 1.4rem;
+  font-weight: 500;
+  color: var(--text-color-secondary);
+}
+.profile__description {
+  line-height: 150%;
+}
+.profile__button {
+  font-weight: 600;
+  color: #f4f4f4;
+  border-radius: 8px;
+  padding-inline: 24px;
+  font-size: 15px;
+  height: 40px;
+  background-color: #4e4f51;
+}
 </style>

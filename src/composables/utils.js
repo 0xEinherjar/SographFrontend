@@ -13,6 +13,10 @@ export const useUtils = () => {
     return text.replace(/(#\w{0,15})/gm, "<span class='c-hashtag'>$1</span>");
   }
 
+  function formatToNumber(value) {
+    return Number(String(value).replace(/n/i, ""));
+  }
+
   async function imgURLtoFile(imgUrl) {
     const ext = imgUrl.split(/[#?]/)[0].split(".").pop().trim();
     const name = imgUrl.split(/[#?]/)[0].split("/").pop().trim().split(".")[0];
@@ -69,6 +73,7 @@ export const useUtils = () => {
     truncateAddress,
     imgURLtoFile,
     hashtagDecorator,
+    formatToNumber,
     dateFormat,
   };
 };

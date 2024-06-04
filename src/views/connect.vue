@@ -50,7 +50,7 @@ async function handleConnect() {
     userStore.setUser(result.data);
     accountStore.setHasAccount();
     router.push({
-      path: `/${result.data.handle ? result.data.handle : address}`,
+      path: `/user/${result.data.handle ? result.data.handle : address}`,
     });
   }
 }
@@ -92,7 +92,7 @@ async function create() {
       accountStore.setHasAccount();
       const profile = await blockchain.getProfile(wallet.value);
       if (profile.success) userStore.setUser(profile.data);
-      router.push({ path: `/${wallet.value}` });
+      router.push({ path: `/user/${wallet.value}` });
     }
   } catch (error) {
     console.log(error);

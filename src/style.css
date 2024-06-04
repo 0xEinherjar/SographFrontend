@@ -5,9 +5,11 @@
   --text-color-primary: #f4f4f4;
   --text-color-secondary: #bdc1c6;
   --text-color-tertiary: #e8eaed;
+  --color-green: #2fc687;
   --color-red: #ff6370;
   --color-blue-light: #96e7fe;
   --color-blue: #0177fb;
+  --color-yellow: #ffde6b;
 }
 *,
 *::before,
@@ -288,4 +290,23 @@ body {
 .no-users {
   padding: 76px 80px;
   text-align: center;
+}
+.c-text-disable {
+  opacity: 0.4;
+}
+.c-soon {
+  position: relative;
+  cursor: default !important;
+}
+.c-soon::before {
+  opacity: 1;
+  content: "Soon";
+  position: absolute;
+  top: -1px;
+  right: -16%;
+  background-color: #ff6370;
+  padding: 2px 4px 3px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  line-height: 1;
 }

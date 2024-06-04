@@ -12,9 +12,12 @@ const {
   attachment,
   text,
   owner,
+  authorHasSubscription,
   date,
   like,
+  shared,
   hasLiked,
+  hasShared,
   isConnected,
   isMyProfile,
 } = defineProps([
@@ -25,15 +28,20 @@ const {
   "handle",
   "text",
   "owner",
+  "authorHasSubscription",
   "date",
   "like",
+  "shared",
   "hasLiked",
+  "hasShared",
   "isConnected",
   "isMyProfile",
 ]);
 const post = ref({
   hasLiked: null,
   totalLiked: 0,
+  hasShared: null,
+  totalShared: 0,
 });
 const textPost = computed(() => {
   return String(text).split("\n");
@@ -42,6 +50,35 @@ async function redeemPost(_id) {
   const blockchain = new Blockchain();
   const result = await blockchain.redeemPost(_id);
 }
+async function handleShare(_id) {
+  const blockchain = new Blockchain();
+  if (post.value.hasShared == false) {
+    const result = await blockchain.share(_id);
+    if (result.success) {
+      post.value.totalShared += 1;
+      post.value.hasShared = true;
+    }
+  } else {
+    const result = await blockchain.unshare(_id);
+    if (result.success) {
+      post.value.totalShared -= 1;
+      post.value.hasShared = false;
+    }
+  }
+}
+// async function handleShare(_id) {
+//   const blockchain = new Blockchain();
+//   const result = await blockchain.share(_id);
+//   if (result.success) {
+//     if (post.value.hasShared == false) {
+//       post.value.totalShared += 1;
+//       post.value.hasShared = true;
+//     } else {
+//       post.value.totalShared -= 1;
+//       post.value.hasShared = false;
+//     }
+//   }
+// }
 async function handleLike(_id) {
   const blockchain = new Blockchain();
   const result = await blockchain.like(_id);
@@ -58,6 +95,8 @@ async function handleLike(_id) {
 onMounted(() => {
   post.value.hasLiked = hasLiked;
   post.value.totalLiked = Number(like);
+  post.value.hasShared = hasShared;
+  post.value.totalShared = Number(shared);
 });
 </script>
 <!-- prettier-ignore -->
@@ -96,11 +135,32 @@ onMounted(() => {
           </svg>
           <span class="c-post__action-count">{{ post.totalLiked }}</span>
         </button>
+        <button v-if="isConnected" class="c-post__action" @click="handleShare(id)">
+          <svg class="c-post__icon" :class="{ 'c-post__icon--shared': post.hasShared && isMyProfile }" width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.83337 11C1.83337 5.93998 5.90337 1.83331 11 1.83331C17.1142 1.83331 20.1667 6.92998 20.1667 6.92998M20.1667 6.92998V2.34665M20.1667 6.92998H16.0967" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path opacity="0.4" d="M20.0658 11C20.0658 16.06 15.9592 20.1667 10.8992 20.1667C5.83917 20.1667 2.75 15.07 2.75 15.07M2.75 15.07H6.89333M2.75 15.07V19.6533" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="c-post__action-count">{{ post.totalShared }}</span>
+        </button>
+        <button v-else class="c-post__action">
+          <svg  class="c-post__icon" width="22" height="22" viewBox="0 0 22 22" xmlns="http://www.w3.org/2000/svg">
+            <path d="M1.83337 11C1.83337 5.93998 5.90337 1.83331 11 1.83331C17.1142 1.83331 20.1667 6.92998 20.1667 6.92998M20.1667 6.92998V2.34665M20.1667 6.92998H16.0967" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path opacity="0.4" d="M20.0658 11C20.0658 16.06 15.9592 20.1667 10.8992 20.1667C5.83917 20.1667 2.75 15.07 2.75 15.07M2.75 15.07H6.89333M2.75 15.07V19.6533" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="c-post__action-count">{{ post.totalShared }}</span>
+        </button>
         <button v-if="isMyProfile" class="post__dropdown">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M5 10C3.9 10 3 10.9 3 12C3 13.1 3.9 14 5 14C6.1 14 7 13.1 7 12C7 10.9 6.1 10 5 10Z" stroke="#F4F4F4" stroke-width="1.5"/>
-            <path d="M19 10C17.9 10 17 10.9 17 12C17 13.1 17.9 14 19 14C20.1 14 21 13.1 21 12C21 10.9 20.1 10 19 10Z" stroke="#F4F4F4" stroke-width="1.5"/>
-            <path opacity="0.4" d="M12 10C10.9 10 10 10.9 10 12C10 13.1 10.9 14 12 14C13.1 14 14 13.1 14 12C14 10.9 13.1 10 12 10Z" stroke="#F4F4F4" stroke-width="1.5"/>
+          <svg class="c-post__icon" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22 6.5H16" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <g opacity="0.4">
+            <path d="M6 6.5H2" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M10 10C11.933 10 13.5 8.433 13.5 6.5C13.5 4.567 11.933 3 10 3C8.067 3 6.5 4.567 6.5 6.5C6.5 8.433 8.067 10 10 10Z" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
+            <path d="M8 17.5H2" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <g opacity="0.4">
+            <path d="M22 17.5H18" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M14 21C15.933 21 17.5 19.433 17.5 17.5C17.5 15.567 15.933 14 14 14C12.067 14 10.5 15.567 10.5 17.5C10.5 19.433 12.067 21 14 21Z" stroke-width="1.5" stroke-miterlimit="10" stroke-linecap="round" stroke-linejoin="round"/>
+            </g>
           </svg>
           <ul class="post__dropdown-menu">
             <li><button @click="redeemPost(id)">Redeem</button></li>
@@ -197,10 +257,15 @@ onMounted(() => {
 .c-post__icon {
   fill: none;
   stroke: #f4f4f4;
+  height: 2rem;
+  width: 2rem;
 }
 .c-post__icon--liked {
   fill: #ff6370 !important;
   stroke: #ff6370 !important;
 }
+.c-post__icon--shared {
+  stroke: #2fc687 !important;
+}
 </style>
-./avatar.vue/index.js
+<!-- <svg viewBox="0 0 24 24" focusable="false" class="chakra-icon css-1ly5nwx"><path fill-rule="evenodd" clip-rule="evenodd" d="M8 6C9.10457 6 10 5.10457 10 4C10 2.89543 9.10457 2 8 2C6.89543 2 6 2.89543 6 4C6 5.10457 6.89543 6 8 6ZM13 4.00001C13 4.02066 12.9999 4.04128 12.9996 4.06186C16.9461 4.55379 20 7.92026 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12C4 10.558 4.38151 9.20514 5.04911 8.0368C4.4838 7.62286 4.00868 7.09304 3.65872 6.48232C2.6105 8.06377 2 9.9606 2 12C2 17.5229 6.47715 22 12 22C17.5228 22 22 17.5229 22 12C22 6.67571 17.839 2.32327 12.5914 2.01721C12.8543 2.62513 13 3.29556 13 4.00001Z" fill="currentColor"></path></svg> -->

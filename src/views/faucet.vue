@@ -1,9 +1,25 @@
 <script setup>
-import { useRouter } from "vue-router";
+import { ref } from "vue";
+import { useMetamask } from "../composables/metamask.js";
+import Token from "../infra/token.js";
+
+const wallet = ref(null);
+const { connect } = useMetamask();
+
+async function handleConnect() {
+  const address = await connect();
+  if (!address) return;
+  wallet.value = address;
+}
+
+async function faucet() {
+  const token = new Token();
+  await token.faucet();
+}
 </script>
 <!-- prettier-ignore -->
 <template>
-  <main class="home">
+  <div class="faucet">
     <header class="header u-flex-line u-flex-line-center">
       <router-link to="/" class="header__logo">
         <svg
@@ -53,37 +69,34 @@ import { useRouter } from "vue-router";
         <div class="header__nav-item header__nav-item-home c-soon">Docs</div>
       </nav>
     </header>
-    <div class="home__section">
-      <router-link class="home__button" to="/user/connect">Connect</router-link>
+    <div class="faucet__content">
+      <button v-if="!wallet" @click="handleConnect" class="faucet__connect">Connect</button>
+      <button v-else @click="faucet" class="faucet__request">Claim 2000 Graph</button>
     </div>
-  </main>
+  </div>
 </template>
 <style>
-.home {
+.faucet {
   height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr;
 }
-.home__section {
+.faucet__content {
   display: flex;
   align-items: center;
   justify-content: center;
-}
-.home__button {
-  height: 87px;
-  width: 370px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid var(--bg-color-tertiary);
-  color: var(--text-color-primary);
-  border-radius: 16px;
-  font-size: 1.6rem;
-  font-weight: 600;
   margin-bottom: 100px;
-  gap: 16px;
 }
-.header__nav-item-home.c-soon::before {
-  right: -58%;
+.faucet__connect,
+.faucet__request {
+  height: 48px;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 380px;
+  margin-block: auto;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #1a1b1d;
+  background-color: #f4f4f4;
 }
 </style>

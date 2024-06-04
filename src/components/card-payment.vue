@@ -1,16 +1,23 @@
 <script setup>
-import { ref } from "vue";
+import { onBeforeMount, ref } from "vue";
 import Blockchain from "../infra/blockchain.js";
 import { useUserStore } from "../store/user.js";
+import { storeToRefs } from "pinia";
 const userStore = useUserStore();
+const { user } = storeToRefs(userStore);
 const modal = ref(null);
-const minPrice = ref(10);
-const price = ref(10);
+const minPrice = ref(0);
+const price = ref(0);
 const duration = ref(1);
 
 async function subscription() {
   const blockchain = new Blockchain();
-  const result = await blockchain.subscription();
+  const approveResult = await blockchain.approveToken(price.value);
+  if (!approveResult.success) {
+    modal.value.close();
+    return;
+  }
+  const result = await blockchain.subscription(user.value.id, duration.value);
   if (result.success) {
     userStore.updateSubscription();
     modal.value.close();
@@ -27,6 +34,12 @@ function counterDuration(operator) {
     price.value = duration.value * minPrice.value;
   }
 }
+onBeforeMount(async () => {
+  const blockchain = new Blockchain();
+  const result = await blockchain.getPriceSubscription();
+  minPrice.value = result;
+  price.value = result;
+});
 </script>
 <!-- prettier-ignore -->
 <template>
@@ -77,23 +90,37 @@ function counterDuration(operator) {
             </p>
           </div>
         </li>
+        <li class="c-card-payment__list-item">
+          <div class="c-card-payment__list-box c-soon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81V16.18C2 19.83 4.17 22 7.81 22H16.18C19.82 22 21.99 19.83 21.99 16.19V7.81C22 4.17 19.83 2 16.19 2Z" fill="#F4F4F4"/>
+              <path d="M14.2602 12L12.7502 11.47V8.08H13.1102C13.9202 8.08 14.5802 8.79 14.5802 9.66C14.5802 10.07 14.9202 10.41 15.3302 10.41C15.7402 10.41 16.0802 10.07 16.0802 9.66C16.0802 7.96 14.7502 6.58 13.1102 6.58H12.7502V6C12.7502 5.59 12.4102 5.25 12.0002 5.25C11.5902 5.25 11.2502 5.59 11.2502 6V6.58H10.6002C9.12016 6.58 7.91016 7.83 7.91016 9.36C7.91016 11.15 8.95016 11.72 9.74016 12L11.2502 12.53V15.91H10.8902C10.0802 15.91 9.42016 15.2 9.42016 14.33C9.42016 13.92 9.08016 13.58 8.67016 13.58C8.26016 13.58 7.92016 13.92 7.92016 14.33C7.92016 16.03 9.25016 17.41 10.8902 17.41H11.2502V18C11.2502 18.41 11.5902 18.75 12.0002 18.75C12.4102 18.75 12.7502 18.41 12.7502 18V17.42H13.4002C14.8802 17.42 16.0902 16.17 16.0902 14.64C16.0802 12.84 15.0402 12.27 14.2602 12ZM10.2402 10.59C9.73016 10.41 9.42016 10.24 9.42016 9.37C9.42016 8.66 9.95016 8.09 10.6102 8.09H11.2602V10.95L10.2402 10.59ZM13.4002 15.92H12.7502V13.06L13.7602 13.41C14.2702 13.59 14.5802 13.76 14.5802 14.63C14.5802 15.34 14.0502 15.92 13.4002 15.92Z" fill="#4F5D7F"/>
+            </svg>
+          </div>
+          <div>
+            <h5 class="c-card-payment__list-title">No transaction fee</h5>
+            <p class="c-card-payment__list-text">
+              Interact without needing to open the wallet to confirm the transaction.
+            </p>
+          </div>
+        </li>
       </ul>
       <div class="c-card-payment__footer u-flex-line">
         <div class="c-card-payment__count u-flex-line">
           <button class="c-card-payment__count-button" @click="counterDuration('-')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
-              <path fill="#28292b" fill-rule="evenodd" d="M0 12a1.5 1.5 0 0 1 1.5-1.5h21a1.5 1.5 0 0 1 0 3h-21A1.5 1.5 0 0 1 0 12" clip-rule="evenodd"></path>
+              <path fill-rule="evenodd" d="M0 12a1.5 1.5 0 0 1 1.5-1.5h21a1.5 1.5 0 0 1 0 3h-21A1.5 1.5 0 0 1 0 12" clip-rule="evenodd"></path>
             </svg>
           </button>
           <span class="c-card-payment__count-text">{{ duration }} year{{ duration == 1 ? "" : "s" }}</span>
           <button class="c-card-payment__count-button" @click="counterDuration('+')">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none">
-              <path fill="#28292b" fill-rule="evenodd" d="M13.5 1.5a1.5 1.5 0 0 0-3 0v9h-9a1.5 1.5 0 0 0 0 3h9v9a1.5 1.5 0 0 0 3 0v-9h9a1.5 1.5 0 0 0 0-3h-9z" clip-rule="evenodd"></path>
+              <path fill-rule="evenodd" d="M13.5 1.5a1.5 1.5 0 0 0-3 0v9h-9a1.5 1.5 0 0 0 0 3h9v9a1.5 1.5 0 0 0 3 0v-9h9a1.5 1.5 0 0 0 0-3h-9z" clip-rule="evenodd"></path>
             </svg>
           </button>
         </div>
         <button class="c-card-payment__pay" @click="subscription" type="button">
-          Subscribe for {{ price }} USDT per {{ duration }} year{{ duration == 1 ? "" : "s" }}
+          Subscribe for {{ price }} Graph per {{ duration }} year{{ duration == 1 ? "" : "s" }}
         </button>
       </div>
     </div>
@@ -115,6 +142,10 @@ function counterDuration(operator) {
   z-index: 2;
   color: inherit;
   border: none;
+  overflow-y: auto;
+}
+.c-card-payment::-webkit-scrollbar {
+  width: 0;
 }
 .c-card-payment__content {
   padding-top: 40px;
@@ -154,10 +185,10 @@ function counterDuration(operator) {
   gap: 24px;
 }
 .c-card-payment__list-box {
-  background-color: var(--color-blue-light);
+  background-color: var(--bg-color-secondary);
   height: 50px;
   width: 50px;
-  border-radius: 8px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -175,7 +206,6 @@ function counterDuration(operator) {
 
 .c-card-payment__footer {
   background-color: var(--bg-color-secondary);
-  /* height: 120px; */
   padding-block: 32px;
   padding-inline: 24px;
   display: grid;
@@ -183,7 +213,7 @@ function counterDuration(operator) {
 }
 .c-card-payment__pay {
   background-color: #f4f4f4;
-  border-radius: 8px;
+  border-radius: 12px;
   height: 40px;
   width: 100%;
   color: #1a1b1d;
@@ -191,22 +221,20 @@ function counterDuration(operator) {
   font-weight: 600;
 }
 .c-card-payment__count {
-  border-radius: 40px;
+  border-radius: 12px;
   height: 40px;
   width: 100%;
-  border: 1px solid #f4f4f4;
-  padding-inline: 4px;
+  background-color: var(--bg-color-primary);
+  padding-inline: 8px;
 }
 .c-card-payment__count-button {
-  background-color: #f4f4f4;
   border-radius: 32px;
   display: grid;
   place-items: center;
-  height: 30px;
-  width: 30px;
 }
 .c-card-payment__count-button svg {
-  transform: scale(0.5);
+  transform: scale(0.55);
+  fill: #f4f4f4;
 }
 .c-card-payment__count-text {
   flex-grow: 1;
