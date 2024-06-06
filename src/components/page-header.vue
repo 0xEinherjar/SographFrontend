@@ -81,6 +81,7 @@ function logout() {
           >Profile</router-link
         >
         <div class="header__nav-item"><card-payment /></div>
+        <router-link class="header__nav-item" to="/faucet">Faucet</router-link>
       </template>
     </nav>
     <search />
