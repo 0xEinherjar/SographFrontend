@@ -57,9 +57,25 @@ async function handleConnect() {
 
 async function reactivateProfile() {
   if (!reactivateProfileId) return;
+  const address = await connect();
+  if (!address) return;
   const blockchain = new Blockchain();
   await blockchain.approve(reactivateProfileId.value);
-  const result = await blockchain.reactivateProfile(reactivateProfileId.value);
+  const reactivateResult = await blockchain.reactivateProfile(
+    reactivateProfileId.value
+  );
+  if (!reactivateResult.success) return;
+  const profileResult = await blockchain.getProfile(address);
+  if (!profileResult.success) return;
+  accountStore.setWallet(address);
+  accountStore.setConnected();
+  userStore.setUser(profileResult.data);
+  accountStore.setHasAccount();
+  router.push({
+    path: `/user/${
+      profileResult.data.handle ? profileResult.data.handle : address
+    }`,
+  });
 }
 
 function checkForm() {
