@@ -500,7 +500,7 @@ export default class Blockchain {
         profileAbi.address,
         account.value.wallet
       );
-      if (formatToNumber(transactionAllowance) > value) {
+      if (formatToNumber(transactionAllowance) < value) {
         const decimals = await Blockchain.tokenContract.decimals();
         const signer = await Blockchain.provider.getSigner();
         const transaction = await Blockchain.tokenContract
@@ -534,7 +534,6 @@ export default class Blockchain {
       await transaction.wait();
       return { success: true };
     } catch (error) {
-      console.log(error);
       if (isError(error, "CALL_EXCEPTION")) {
         return { success: false, message: error.reason };
       }
@@ -551,9 +550,6 @@ export default class Blockchain {
       await transaction.wait();
       return { success: true };
     } catch (error) {
-      console.log(error.reason);
-      console.log(error.info.error.code);
-      console.log(error.info.error.message);
       if (isError(error, "CALL_EXCEPTION")) {
         return { success: false, message: error.reason };
       }
