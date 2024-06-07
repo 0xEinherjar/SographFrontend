@@ -21,6 +21,11 @@ const participant = ref({
   balance: 0,
   amountToken: 0,
 });
+const stats = ref({
+  banned: 0,
+  reestablished: 0,
+  total: 0,
+});
 const assessment = ref([]);
 function panelSelect(param) {
   select.value = param;
@@ -112,7 +117,12 @@ onBeforeMount(async () => {
         profileName: item.profileName,
         profileHandle: item.profileHandle,
       });
+      if (item.executed) {
+        if (item.state == 5) stats.value.banned += 1;
+        if (item.state == 4) stats.value.reestablished += 1;
+      }
     }
+    stats.value.total = data.length;
   }
 });
 </script>
@@ -205,10 +215,13 @@ onBeforeMount(async () => {
       </div>
       <div class="assessment__stats">
         <div class="assessment__stats-row">
-          Total bans: <span>{{ "0" }}</span>
+          Total proposals: <span>{{ stats.total }}</span>
         </div>
         <div class="assessment__stats-row">
-          Total reestablished: <span>{{ "0" }}</span>
+          Total bans: <span>{{ stats.banned }}</span>
+        </div>
+        <div class="assessment__stats-row">
+          Total reestablish: <span>{{ stats.reestablished }}</span>
         </div>
       </div>
     </aside>
