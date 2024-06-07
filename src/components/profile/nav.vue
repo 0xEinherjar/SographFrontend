@@ -1,9 +1,12 @@
 <script setup>
 import { watch } from "vue";
 import { useRoute } from "vue-router";
+import { useUtils } from "../../composables/utils.js";
+
+const { truncateAddress } = useUtils();
 
 const route = useRoute();
-const { links } = defineProps(["links"]);
+const { links, address } = defineProps(["links", "address"]);
 const emit = defineEmits(["profile-nav"]);
 function profileNav(router) {
   document.querySelectorAll(".profile__nav-link").forEach((link) => {
@@ -11,6 +14,14 @@ function profileNav(router) {
   });
   router.target.classList.add("is-active");
   emit("profile-nav", router.target.dataset.nav);
+}
+async function copyContent() {
+  try {
+    await navigator.clipboard.writeText(address);
+    alert("Address copied to clipboard");
+  } catch (err) {
+    alert("Failed to copy");
+  }
 }
 watch(
   () => route.params.profile,
@@ -41,8 +52,17 @@ watch(
             <path opacity="0.4" d="M8 12H16" stroke="#F4F4F4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </button>
-        <div v-if="links?.twitch || links?.twitter || links?.youtube || links?.instagram" class="dropdown__group">
+        <div class="dropdown__group">
           <ul class="dropdown__menu">
+            <li class="dropdown__item">
+              <span class="dropdown__item-address">{{ truncateAddress(address) }}</span>
+              <button type="button" @click="copyContent">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 12.9V17.1C16 20.6 14.6 22 11.1 22H6.9C3.4 22 2 20.6 2 17.1V12.9C2 9.4 3.4 8 6.9 8H11.1C14.6 8 16 9.4 16 12.9Z" fill="#F4F4F4"/>
+                  <path opacity="0.4" d="M17.1 2H12.9C9.45001 2 8.05001 3.37 8.01001 6.75H11.1C15.3 6.75 17.25 8.7 17.25 12.9V15.99C20.63 15.95 22 14.55 22 11.1V6.9C22 3.4 20.6 2 17.1 2Z" fill="#F4F4F4"/>
+                </svg>
+              </button>
+            </li>
             <li v-if="links?.twitch" class="dropdown__item">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path opacity="0.4" fill-rule="evenodd" clip-rule="evenodd" d="M5.03976 2H20.4998C21.0498 2 21.4998 2.45 21.4998 3V13.59C21.4998 13.86 21.3898 14.11 21.2098 14.3L16.7998 18.71C16.6098 18.9 16.3598 19 16.0898 19H12.0398C11.7098 19 11.3898 19.17 11.2098 19.45L9.79977 21.56C9.60977 21.84 9.29977 22.01 8.96977 22.01H7.50977C6.95977 22.01 6.50977 21.56 6.50977 21.01V20.01C6.50977 19.46 6.05977 19.01 5.50977 19.01H3.50977C2.95977 19.01 2.50977 18.56 2.50977 18.01V5.31C2.50977 5.11 2.56976 4.91999 2.67976 4.75999L4.21977 2.46001C4.38977 2.17001 4.69976 2 5.03976 2Z" fill="#BDC1C6"/>
@@ -115,6 +135,9 @@ watch(
   align-items: center;
   gap: 8px;
   font-size: 1.4rem;
+}
+.dropdown__item-address {
+  flex-grow: 1;
 }
 .dropdown__item svg {
   height: 20px;
