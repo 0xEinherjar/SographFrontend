@@ -74,25 +74,17 @@ function logout() {
       </svg>
     </div>
     <nav class="header__nav u-flex-line">
-      <template v-if="account.isConnected">
+      <template v-if="account.isConnected && account.hasAccount">
         <div class="header__nav-item c-soon">Explorer</div>
         <router-link class="header__nav-item" to="/user/feed">Feed</router-link>
-        <router-link class="header__nav-item" :to="`/user/${pathProfile}`"
-          >Profile</router-link
-        >
+        <router-link class="header__nav-item" :to="`/user/${pathProfile}`">Profile</router-link>
         <div class="header__nav-item"><card-payment /></div>
         <router-link class="header__nav-item" to="/faucet">Faucet</router-link>
       </template>
     </nav>
     <search />
     <!-- <chain /> -->
-    <router-link
-      v-if="account.isConnected == false"
-      class="header__button u-flex-line u-flex-line-center"
-      to="/user/connect"
-      >Connect</router-link
-    >
-    <div v-else class="header__dropdown u-flex-line">
+    <div v-if="account.isConnected && account.hasAccount" class="header__dropdown u-flex-line">
       <button class="header__user u-flex-line" type="button">
         <avatar :avatar="user.avatar" length="40px" />
         <svg
@@ -127,6 +119,7 @@ function logout() {
         </ul>
       </div>
     </div>
+    <router-link v-else class="header__button u-flex-line u-flex-line-center" to="/user/connect">Connect</router-link>
   </header>
 </template>
 
