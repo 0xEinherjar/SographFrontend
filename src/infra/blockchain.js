@@ -165,6 +165,12 @@ export default class Blockchain {
       }
     } catch (error) {
       if (isError(error, "CALL_EXCEPTION")) {
+        if (error.reason == "profile banned") {
+          return {
+            success: false,
+            message: "BANNED",
+          };
+        }
         return {
           success: false,
           message: "NOT_FOUND",

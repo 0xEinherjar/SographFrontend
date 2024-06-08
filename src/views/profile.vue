@@ -20,7 +20,7 @@ const { user } = storeToRefs(userStore);
 const route = useRoute();
 const profile = ref(null);
 const navActive = ref("Publications");
-const notFound = ref("");
+const profileErrorInfo = ref("");
 const publications = ref([]);
 const isLoadingPost = ref(true);
 const isLoadingProfile = ref(true);
@@ -76,7 +76,11 @@ async function getProfile() {
     publications.value = data;
     isLoadingPost.value = false;
   } else {
-    notFound.value = result.message;
+    if (result.message == "BANNED") {
+      profileErrorInfo.value = "Profile banned";
+      return;
+    }
+    profileErrorInfo.value = "Profile not found";
   }
 }
 
@@ -187,7 +191,7 @@ onBeforeMount(async () => {
       /></template>
     </template>
     <div style="text-align: center; margin-top: 40px" v-else>
-      {{ "Profile not found" }}
+      {{ profileErrorInfo }}
     </div>
   </template>
   <template v-else>
