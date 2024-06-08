@@ -76,6 +76,7 @@ async function getProfile() {
     publications.value = data;
     isLoadingPost.value = false;
   } else {
+    profile.value = null;
     if (result.message == "BANNED") {
       profileErrorInfo.value = "Profile banned";
       return;
