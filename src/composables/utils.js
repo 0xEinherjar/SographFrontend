@@ -68,6 +68,15 @@ export const useUtils = () => {
     }).format(new Date(date));
   }
 
+  async function copyContent(item) {
+    try {
+      await navigator.clipboard.writeText(item);
+      alert("Address copied to clipboard");
+    } catch (err) {
+      alert("Failed to copy");
+    }
+  }
+
   return {
     isAddress,
     truncateAddress,
@@ -75,5 +84,6 @@ export const useUtils = () => {
     hashtagDecorator,
     formatToNumber,
     dateFormat,
+    copyContent,
   };
 };

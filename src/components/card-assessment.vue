@@ -3,9 +3,9 @@ import Avatar from "./avatar.vue";
 import Vote from "../infra/vote.js";
 import { useUtils } from "../composables/utils.js";
 import { onMounted, ref } from "vue";
-const { truncateAddress } = useUtils();
 import { useModeratorStore } from "../store/moderator.js";
 import { storeToRefs } from "pinia";
+
 const {
   reason,
   proposer,
@@ -32,6 +32,7 @@ const {
   "profileHandle",
 ]);
 
+const { isAddress, truncateAddress, copyContent } = useUtils();
 const moderatorStore = useModeratorStore();
 const { moderator } = storeToRefs(moderatorStore);
 const executedAssessment = ref(null);
@@ -117,7 +118,16 @@ onMounted(() => {
 <div class="assessment__card">
   <header class="assessment__card-header">
     <avatar :avatar="profileAvatar" length="52px"/>
-    <div class="assessment__card-name">{{ profileName }}</div>
+    <div v-if="isAddress(profileName)" class="assessment__card-name assessment__card-name--address">
+      {{ truncateAddress(profileName) }}
+      <button type="button" @click="copyContent(profileName)">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 12.9V17.1C16 20.6 14.6 22 11.1 22H6.9C3.4 22 2 20.6 2 17.1V12.9C2 9.4 3.4 8 6.9 8H11.1C14.6 8 16 9.4 16 12.9Z" fill="#F4F4F4"/>
+          <path opacity="0.4" d="M17.1 2H12.9C9.45001 2 8.05001 3.37 8.01001 6.75H11.1C15.3 6.75 17.25 8.7 17.25 12.9V15.99C20.63 15.95 22 14.55 22 11.1V6.9C22 3.4 20.6 2 17.1 2Z" fill="#F4F4F4"/>
+        </svg>
+      </button>
+    </div>
+    <div v-else class="assessment__card-name">{{ profileName }}</div>
     <router-link v-if="state != 4" :to="`/user/${profileHandle || profile}`" class="assessment__card-button assessment__card-button--default" type="button">View</router-link>
     <button v-if="state == 2" class="assessment__card-button assessment__card-button--active" type="button">Active</button>
     <button v-if="state == 1" class="assessment__card-button assessment__card-button--pending" type="button">Pending</button>
@@ -188,6 +198,11 @@ onMounted(() => {
   font-size: 2.4rem;
   font-weight: 500;
   flex-grow: 1;
+}
+.assessment__card-name--address {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .assessment__card-button {
   height: 32px;

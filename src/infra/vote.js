@@ -116,20 +116,36 @@ export default class Vote {
 
       const data = [];
       for (const item of transaction) {
-        const { data: profile } = await blockchain.getProfile(item[5]);
-        data.push({
-          id: formatToNumber(item[0]),
-          voteEnd: formatToNumber(item[1]),
-          voteStart: formatToNumber(item[2]),
-          reason: item[3],
-          proposer: item[4],
-          profile: item[5],
-          executed: item[6],
-          state: formatToNumber(item[7]),
-          profileAvatar: profile.avatar,
-          profileName: profile.name,
-          profileHandle: profile.handle,
-        });
+        if (item[6] && formatToNumber(item[7]) == 4) {
+          data.push({
+            id: formatToNumber(item[0]),
+            voteEnd: formatToNumber(item[1]),
+            voteStart: formatToNumber(item[2]),
+            reason: item[3],
+            proposer: item[4],
+            profile: item[5],
+            executed: item[6],
+            state: formatToNumber(item[7]),
+            profileAvatar: null,
+            profileName: item[5],
+            profileHandle: null,
+          });
+        } else {
+          const { data: profile } = await blockchain.getProfile(item[5]);
+          data.push({
+            id: formatToNumber(item[0]),
+            voteEnd: formatToNumber(item[1]),
+            voteStart: formatToNumber(item[2]),
+            reason: item[3],
+            proposer: item[4],
+            profile: item[5],
+            executed: item[6],
+            state: formatToNumber(item[7]),
+            profileAvatar: profile.avatar,
+            profileName: profile.name,
+            profileHandle: profile.handle,
+          });
+        }
       }
       return { success: true, data: data.reverse() };
     } catch (error) {
