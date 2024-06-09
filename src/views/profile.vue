@@ -65,6 +65,7 @@ async function getProfile() {
   const blockchain = new Blockchain();
   const result = await blockchain.getProfile(route.params.profile);
   isLoadingProfile.value = false;
+  publications.value = [];
   if (result.success) {
     profile.value = result.data;
     result.data.isFollowing;
@@ -77,6 +78,7 @@ async function getProfile() {
     isLoadingPost.value = false;
   } else {
     profile.value = null;
+    publications.value = [];
     if (result.message == "BANNED") {
       profileErrorInfo.value = "Profile banned";
       return;
