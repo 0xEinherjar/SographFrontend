@@ -16,6 +16,8 @@ export default class Vote {
   async init(window) {
     if (window.ethereum == null) {
       Vote.provider = new ethers.JsonRpcProvider(Vote.rpc);
+    } else if (window.ethereum && window.ethereum.chainId != "0x61") {
+      Vote.provider = new ethers.JsonRpcProvider(Vote.rpc);
     } else {
       Vote.provider = new ethers.BrowserProvider(window.ethereum);
     }

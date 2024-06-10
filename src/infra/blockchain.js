@@ -19,6 +19,8 @@ export default class Blockchain {
   async init(window) {
     if (window.ethereum == null) {
       Blockchain.provider = new ethers.JsonRpcProvider(Blockchain.rpc);
+    } else if (window.ethereum && window.ethereum.chainId != "0x61") {
+      Blockchain.provider = new ethers.JsonRpcProvider(Blockchain.rpc);
     } else {
       Blockchain.provider = new ethers.BrowserProvider(window.ethereum);
     }
