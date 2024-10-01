@@ -3,6 +3,12 @@ export const useUtils = () => {
     return address.slice(0, 6) + "..." + address.slice(-4);
   }
 
+  function isBaseName(name) {
+    if (!name) return false;
+    if (!(name.length <= 20 && name.endsWith(".base.eth"))) return false;
+    return true;
+  }
+
   function isAddress(address) {
     if (!address) return false;
     if (!(address.length === 42 && address.startsWith("0x"))) return false;
@@ -78,6 +84,7 @@ export const useUtils = () => {
   }
 
   return {
+    isBaseName,
     isAddress,
     truncateAddress,
     imgURLtoFile,
